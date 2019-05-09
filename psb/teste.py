@@ -161,16 +161,15 @@ def plotaGrafico(electrodes):
 from mne.time_frequency import psd_welch as pw
 #psds, freqs = pw(raw)
 
-def toCSV(psds, filename):
-    file = open(filename, 'w')
+def toCSV(psds, filename, label, writeMode):
+    file = open(filename, writeMode)
     for line in psds:
         line = list(line)
 
         for value in line:
             file.write(str(value) + ';')
 
-        file.write('\n');
-
+    file.write('{};\n'.format(label))
     file.close()
 
 # # Executando
@@ -179,12 +178,14 @@ def toCSV(psds, filename):
 
 # In[13]:
 
+'''
 s = 's1'
 pathName = 'co2a0000364/' + s
 alcool = getSumElectodes('dataset/large_train/{}/'.format(pathName))
 #saveJson(alcool, 'dataset/small/{}.json'.format(pathName))
 psds, freqs = pw(plotaGrafico(alcool))
 toCSV(psds[int(len(psds)/2):], s + '.csv')
+'''
 '''
 pathName = 'c_1_co2c0000337'
 control = getSumElectodes('dataset/small/{}/'.format(pathName))
