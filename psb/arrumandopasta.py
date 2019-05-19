@@ -63,11 +63,10 @@ def listSubPaths(path):
     return subPaths
 
 
-'''
-path1 = 'large_train/'
+
+path1 = 'large_test/'
 for path2 in listSubPaths('dataset/' + path1):
     s1, s2, s2no = organiza(path2)
 
     if s1 and s2 and s2no:
         criaPastas(path2, s1, s2, s2no)
-'''

@@ -1,55 +1,61 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm
+import numpy as np
 from sklearn.naive_bayes import GaussianNB
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import PowerTransformer
 
 def extrai(fileName):
     x, y = [], []
     file = open(fileName)
+
+    # pre processing POWER
+    power = PowerTransformer()
 
     for line in file.readlines():
         line = line.replace(';\n', '').split(';')
         y.append(line.pop())
         x.append(line)
 
-    return x, y
+    return power.fit_transform(np.array(x)), np.array(y)
 
-fileNameTest = './dataset/test_full.csv'
-fileNameTrain = './dataset/train_full.csv'
+def printResult(train_values, test_values, acertos, k=False):
+    print()
+    
+    if k:
+        print('K:', k)
 
-test_values, test_label = extrai(fileNameTest)
-train_values, train_label = extrai(fileNameTrain)
+    print('Total de treinamento: %d' % len(train_values))
+    print('Total de testes: %d' % (len(test_values)))
+    print('Total de acertos: %d' % acertos)
+    print('Porcentagem de acertos: %.2f%%' % (100 * acertos / (len(test_values))))
 
 def knn(k):
     global train_values
     global test_values
-    # Chamar a função do skLearn para aplicar o k-NN com K = 13
-    knn = KNeighborsClassifier(n_neighbors=k)
-    # Ajustar o modelo usando "x_test" como dados de treinamento e "y_test" como valores-alvo
-    knn.fit(train_values, train_label)
-    # Previsão dos rótulos das classes para o restante da base de dados
-    rotulos_previstos = knn.predict(test_values)
 
-    # Contabilizar acertos para os dados de teste
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(train_values, train_label)
+
+    rotulos_previstos = knn.predict(test_values)
     acertos, indice_rotulo = 0, 0
     for i in range(0, len(test_values)):
         if rotulos_previstos[indice_rotulo] == test_label[i]:
             acertos += 1
         indice_rotulo += 1
 
-    print('K:', k)
-    print('Total de treinamento: %d' % len(train_values))
-    print('Total de testes: %d' % (len(test_values)))
-    print('Total de acertos: %d' % acertos)
-    print('Porcentagem de acertos: %.2f%%' % (100 * acertos / (len(test_values))))
+    printResult(train_values, test_values, acertos, k)
 
 def svmPSB():
     global train_values
     global test_values
 
-    clf = svm.SVC(gamma='scale')
-    clf.fit(train_values, train_label)
+    xTrain = train_values
+    xTest = test_values
 
-    rotulos_previstos = clf.predict(test_values)
+    clf = svm.SVC(kernel='linear')
+    clf.fit(xTrain, train_label)
+    rotulos_previstos = clf.predict(test_values)    
 
     # Contabilizar acertos para os dados de teste
     acertos, indice_rotulo = 0, 0
@@ -58,15 +64,19 @@ def svmPSB():
             acertos += 1
         indice_rotulo += 1
 
-    print('Total de treinamento: %d' % len(train_values))
-    print('Total de testes: %d' % (len(test_values)))
-    print('Total de acertos: %d' % acertos)
-    print('Porcentagem de acertos: %.2f%%' % (100 * acertos / (len(test_values))))
+    printResult(train_values, test_values, acertos)
 
-'''
+
+fileNameTest = './dataset/test_s2no.csv'
+fileNameTrain = './dataset/train_s2no.csv'
+
+test_values, test_label = extrai(fileNameTest)
+train_values, train_label = extrai(fileNameTrain)
+
+knn(9)
+knn(7)
 knn(5)
 knn(3)
 knn(1)
-'''
 
-#svmPSB()
+svmPSB()

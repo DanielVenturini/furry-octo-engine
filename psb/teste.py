@@ -34,6 +34,18 @@ from mne import set_eeg_reference as car
 
 # In[2]:
 
+def semMedia(pathName,n=10):
+    files = os.listdir(pathName)
+    resp =[]
+    
+
+    for i,file in enumerate(files):
+        dic = {}
+        
+        processFile2(open(pathName + file), dic)
+        resp.append(dic)
+
+    return resp
 
 def getSumElectodes(pathName):
     files = os.listdir(pathName)
@@ -51,6 +63,20 @@ def getSumElectodes(pathName):
 # Abrindo o arquivo e processando cada uma das linhas. Estas, são quebradas para recuperar os valores necessários: `eletrodo`, `posição` e `valor`. Estes valores são adicionados em um objeto e somados.
 
 # In[3]:
+
+def processFile2(file, resp):
+    # para cada linha do arquivo
+    for line in file.readlines():
+        if line.startswith('#'):  #ignora as linhas iniciadas com #
+            continue
+
+        # 41 FP2 168 -4.720
+        line = line.split()
+
+        # recupera os valores da linha
+        electrode, pos, value = line[1:4]
+        insert2(resp, electrode, int(pos), float(value))
+
 
 
 def processFile(file, resp, qtdElectrodes):
@@ -72,7 +98,13 @@ def processFile(file, resp, qtdElectrodes):
 # Na posição específica de um eletrodo específico é somado com o valor atual dividido pela quantidade de arquivos na pasta. Assim a média é feita.
 
 # In[4]:
+def insert2(resp, electrode, pos, value):
+    try:
+        resp[electrode][pos] = value
+    except KeyError:
+        resp[electrode] = [0]*256
 
+        insert2(resp, electrode, pos, value)
 
 def insert(resp, electrode, pos, value, qtdElectrodes):
     try:
