@@ -20,15 +20,16 @@ def extrai(fileName):
     return power.fit_transform(np.array(x)), np.array(y)
 
 def printResult(train_values, test_values, acertos, k=False):
-    print()
-    
     if k:
-        print('K:', k)
+        print('KNN:', k)
+    else:
+        print('SVM:')
 
     print('Total de treinamento: %d' % len(train_values))
     print('Total de testes: %d' % (len(test_values)))
     print('Total de acertos: %d' % acertos)
     print('Porcentagem de acertos: %.2f%%' % (100 * acertos / (len(test_values))))
+    print()
 
 def knn(k):
     global train_values
@@ -66,17 +67,18 @@ def svmPSB():
 
     printResult(train_values, test_values, acertos)
 
+for s in ['s1', 's2', 's2no']:
 
-fileNameTest = './dataset/test_s2no.csv'
-fileNameTrain = './dataset/train_s2no.csv'
+    print("Category: {}".format(s.upper()))
 
-test_values, test_label = extrai(fileNameTest)
-train_values, train_label = extrai(fileNameTrain)
+    fileNameTest = './dataset/test_{}.csv'.format(s)
+    fileNameTrain = './dataset/train_{}.csv'.format(s)
 
-knn(9)
-knn(7)
-knn(5)
-knn(3)
-knn(1)
+    test_values, test_label = extrai(fileNameTest)
+    train_values, train_label = extrai(fileNameTrain)
 
-svmPSB()
+    knn(9)
+    knn(7)
+    knn(5)
+
+    svmPSB()
