@@ -1,6 +1,7 @@
 import pandas as pd
 import mne
 from mne.time_frequency import psd_welch as pw
+import numpy as np
 
 # bandpass mais vezes(fmin, fmax)
 # tmin, tmax deslizamento de janela
@@ -45,11 +46,29 @@ raw = mne.io.RawArray(df,info)
 montage = mne.channels.read_montage('standard_1020')
 raw.set_montage(montage)
 
+raw.notch_filter(np.arange(60, 121, 60), fir_design='firwin')
 raw.filter(5,50)
 raw.filter(5,50)
 raw.filter(5,50)
 
 #raw.plot_psd()
-psds, freqs = pw(raw,fmin=0,fmax=128,tmin=0,tmax=3)#arrumar aki buffer
-print(psds[0][8:12])#0 ah 5
+bufferSize = 3
+for i in range(0, len(df)/256):
+    psds, freqs = pw(raw,fmin=0,fmax=128,tmin=i,tmax=i+bufferSize)#arrumar aki buffer
+    print(ps[1:4])
+    print(ps[5:7])
+    print(ps[8:12])
+    print(ps[25:100])
+    print(ps[12:30])
+    print()
+    print()
+    print()
+
+# for ps in psds:
+    
+    
+# print(psds[:][8:12])#0 ah 5
 #usar psd_welch
+
+# notch
+# 5,50 passa faixa
