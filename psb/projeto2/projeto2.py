@@ -35,9 +35,10 @@ def testData(df):
 def openData(name):
     df = pd.read_csv(name, skiprows=6, names=['index', 'PO3', 'PO4', 'P8', 'O1', 'O2', 'P7', '7', '8', 'x', 'y', 'z', 'tempo'])
     df = df.drop(['index','7', '8', 'x', 'y', 'z', 'tempo'], axis=1)
-    return df.transpose()
+    dataLen = len(df)
+    return dataLen, df.transpose()
 
-df = openData("entrada.csv")
+dataLen, df = openData("entrada.csv")
 ch_types = ['eeg'] * 6
 ch_names = ['PO3', 'PO4', 'P8', 'O1', 'O2', 'P7']
 
@@ -50,19 +51,31 @@ raw.notch_filter(np.arange(60, 121, 60), fir_design='firwin')
 raw.filter(5,50)
 raw.filter(5,50)
 raw.filter(5,50)
-
 #raw.plot_psd()
 bufferSize = 3
-for i in range(0, len(df)/256):
-    psds, freqs = pw(raw,fmin=0,fmax=128,tmin=i,tmax=i+bufferSize)#arrumar aki buffer
-    print(ps[1:4])
-    print(ps[5:7])
-    print(ps[8:12])
-    print(ps[25:100])
-    print(ps[12:30])
-    print()
-    print()
-    print()
+for i in range(0, int(dataLen/256)):
+    psds, freqs = pw(raw,fmin=0,fmax=128,tmin=i,tmax=i+bufferSize)
+    
+    alfa =  {}
+    theta = {}
+    gamma = {}
+    beta =  {}
+    
+    for ps in psds:  
+        try:
+            pos = i%bufferSize
+            theta[pos] += list(ps[5:7])
+            alfa[pos]  += list(ps[8:12])
+            gamma[pos] += list(ps[25:100])
+            beta[pos]  += list(ps[12:30])
+        except:
+            theta[pos] = list(ps[5:7])
+            alfa[pos]  = list(ps[8:12])
+            gamma[pos] = list(ps[25:100])
+            beta[pos]  = list(ps[12:30])
+    print(alfa)
+    
+    
 
 # for ps in psds:
     
