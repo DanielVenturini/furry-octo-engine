@@ -2,6 +2,9 @@ import pandas as pd
 import mne
 from mne.time_frequency import psd_welch as pw
 import numpy as np
+from copy import deepcopy
+import matplotlib.pyplot as plt
+
 
 # bandpass mais vezes(fmin, fmax)
 # tmin, tmax deslizamento de janela
@@ -52,14 +55,15 @@ raw.filter(5,50)
 raw.filter(5,50)
 raw.filter(5,50)
 #raw.plot_psd()
+
 bufferSize = 3
 for i in range(0, int(dataLen/256)):
     psds, freqs = pw(raw,fmin=0,fmax=128,tmin=i,tmax=i+bufferSize)
     
-    alfa =  {}
+    alfa  = {}
     theta = {}
     gamma = {}
-    beta =  {}
+    beta  = {}
     
     for ps in psds:  
         try:
@@ -72,10 +76,10 @@ for i in range(0, int(dataLen/256)):
             theta[pos] = list(ps[5:7])
             alfa[pos]  = list(ps[8:12])
             gamma[pos] = list(ps[25:100])
-            beta[pos]  = list(ps[12:30])
-    print(alfa)
-    
-    
+            beta[pos]  = list(ps[12:30])    
+
+    # print(alfa)
+
 
 # for ps in psds:
     
