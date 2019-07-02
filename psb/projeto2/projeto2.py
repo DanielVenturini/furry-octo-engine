@@ -1,9 +1,12 @@
 import pandas as pd
 import mne
+import sys
 from mne.time_frequency import psd_welch as pw
 import numpy as np
 from copy import deepcopy
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+from sklearn.preprocessing import MinMaxScaler
 
 
 # bandpass mais vezes(fmin, fmax)
@@ -35,11 +38,25 @@ def testData(df):
         dc[len(x)] = 0
     print(dc.keys())        
 
+def millions(x, pos):
+    'The two args are the value and tick position'
+    return '$%1.1fM' % (x * 1e-6)
+
 def openData(name):
     df = pd.read_csv(name, skiprows=6, names=['index', 'PO3', 'PO4', 'P8', 'O1', 'O2', 'P7', '7', '8', 'x', 'y', 'z', 'tempo'])
     df = df.drop(['index','7', '8', 'x', 'y', 'z', 'tempo'], axis=1)
     dataLen = len(df)
     return dataLen, df.transpose()
+
+def get_min_max(media):
+    min_value = sys.maxsize
+    max_value = 0
+
+    for l in media:
+        scaler = MinMaxScaler()
+        scaler.fit(np.array(l).reshape(-1, 1))
+        max_value = scaler.data_max_
+        min_value = scaler.data_min_
 
 dataLen, df = openData("entrada.csv")
 ch_types = ['eeg'] * 6
@@ -56,36 +73,47 @@ raw.filter(5,50)
 raw.filter(5,50)
 #raw.plot_psd()
 
+frequencias = {
+    'alfa'  : {},
+    'beta'  : {},
+    'gamma' : {},
+    #'theta' : {}
+}
+
+intervalos = {
+    'alfa'  : {'init': 8, 'end': 12},
+    'gamma' : {'init': 25, 'end': 100},
+    'beta'  : {'init': 12, 'end': 30},
+    #'theta' : {'init': 5, 'end': 7}
+}
+
 bufferSize = 3
 for i in range(0, int(dataLen/256)):
     psds, freqs = pw(raw,fmin=0,fmax=128,tmin=i,tmax=i+bufferSize)
-    
-    alfa  = {}
-    theta = {}
-    gamma = {}
-    beta  = {}
-    
+
     for ps in psds:  
+        pos = i%bufferSize
         try:
-            pos = i%bufferSize
-            theta[pos] += list(ps[5:7])
-            alfa[pos]  += list(ps[8:12])
-            gamma[pos] += list(ps[25:100])
-            beta[pos]  += list(ps[12:30])
+            for canal in frequencias.keys():
+                frequencias[canal][pos] += list(ps[intervalos[canal]['init']:intervalos[canal]['end']])
         except:
-            theta[pos] = list(ps[5:7])
-            alfa[pos]  = list(ps[8:12])
-            gamma[pos] = list(ps[25:100])
-            beta[pos]  = list(ps[12:30])    
+            frequencias[canal][pos] = list(ps[intervalos[canal]['init']:intervalos[canal]['end']])   
 
-    # print(alfa)
+    if len(frequencias['alfa'].keys()) == 3:
+        media = []
+        for canal in frequencias.keys():
+            media.append(np.mean( frequencias[canal][0] + frequencias[canal][1] + frequencias[canal][2] ))
 
+        if media[0] == max(media):
+            # min max
+            scaler = MinMaxScaler()
+            scaler.fit(np.array(media).reshape(-1, 1))
+            max_value = scaler.data_max_
+            min_value = scaler.data_min_
 
-# for ps in psds:
-    
-    
-# print(psds[:][8:12])#0 ah 5
-#usar psd_welch
-
-# notch
-# 5,50 passa faixa
+            x = np.arange(3)
+            plt.bar(x, media)
+            plt.xticks(x, ('alfa', 'beta', 'gamma', ''''teta'''''))
+            x1,x2,y1,y2 = plt.axis()
+            plt.axis((x1, x2, 0, 20000))
+            plt.show()
