@@ -37,14 +37,14 @@ def preprocessing(raw):
 
 def work(raw, dataLen, bufferSize = 3):
     frequency = {
-        'alfa'  : {},
+        'alpha'  : {},
         'beta'  : {},
         'gamma' : {},
         'theta' : {}
     }
 
     interval = {
-        'alfa'  : {'init': 8, 'end': 12},
+        'alpha'  : {'init': 8, 'end': 12},
         'gamma' : {'init': 25, 'end': 100},
         'beta'  : {'init': 12, 'end': 30},
         'theta' : {'init': 5, 'end': 7}
@@ -58,14 +58,14 @@ def work(raw, dataLen, bufferSize = 3):
         for canal in frequency.keys():
             frequency[canal] = max(np.mean(psds[:,interval[canal]['init']:interval[canal]['end']],axis=1))
             
-        #verifica se a media do alfa é o maior
-        if(frequency['alfa'] == max(frequency.values())):
+        #verifica se a media do alpha é o maior
+        if(frequency['alpha'] == max(frequency.values())):
             plotGraphic(frequency)        
             #hordena a medias
             values = sorted(list(frequency.values()) , reverse = True)
-            #retorna a diferença do alfa sobre o segundo maior em escala de (0..100)
-            powerAlfa = 100*(values[0] - values[1])/frequency['alfa']
-            print(powerAlfa)
+            #retorna a diferença do alpha sobre o segundo maior em escala de (0..100)
+            poweralpha = 100*(values[0] - values[1])/frequency['alpha']
+            print(poweralpha)
 
 dataLen, df = openData("entrada.csv")
 raw = preprocessing(getRaw(df))
