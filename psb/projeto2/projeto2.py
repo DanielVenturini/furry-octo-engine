@@ -52,7 +52,7 @@ def work(raw, dataLen, bufferSize = 3):
 
     for i in range(0, int(dataLen/256)):
         #realiza a janela de deslocamento (1 seg)
-        psds, freqs = pw(raw,fmin=0,fmax=128,tmin=i,tmax=i+bufferSize)
+        psds, freqs = pw(raw,fmin=5,fmax=50,tmin=i,tmax=i+bufferSize)
 
         #recebe a maior média(dos 6 eletrodos) de cada frequencia em seu intervalo
         for canal in frequency.keys():
